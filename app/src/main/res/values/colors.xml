@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="dark_text">#EE111111</color>
+    <color name="light_text">#EEDDDDDD</color>
+    <color name="white_text">#EEFFFFFF</color>
+
+    <color name="dark_shadow">#CC000000</color>
+    <color name="light_shadow">#CCFFFFFF</color>
+
+    <color name="orange_text">#FC3503</color>
+
+    <color name="unselected_dot">#EECCCCCC</color>
+</resources>

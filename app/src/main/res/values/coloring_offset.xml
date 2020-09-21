@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="coloring_0_offset">170</string> // red
+    <string name="coloring_1_offset">-50</string> // green
+    <string name="coloring_2_offset">100</string> // pink
+    <string name="coloring_3_offset">50</string> // violet
+    <string name="coloring_4_offset">0.0</string> // black
+    <string name="coloring_5_offset">0.0</string> // white
+    <string name="coloring_6_offset">0.0</string> // inverse
+    <string name="coloring_7_offset">0.0</string> // gradient
+</resources>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="boosters_0_info">This unalloyed lens basically yet magically reduces zooming difficulty twice</string>
+    <string name="boosters_1_info">This immense rusty anchor will speed up your game-immersion 4 times</string>
+    <string name="boosters_2_info">With this scientific device you will see every inch of the fractal 8 times sharper</string>
+    <string name="boosters_3_info">Take this red pill and witness how deep the rabbit hole goes. Instant 16x boost</string>
+    <string name="boosters_4_info">Even a sip of this spell is enough to obtain a 32x magnification effect</string>
+    <string name="boosters_5_info">This renowned but simple tool will diminish the game difficulty 64 times</string>
+    <string name="boosters_6_info">Via this shard of space-time you will reach velocities 128 times faster than light</string>
+    <string name="boosters_7_info">This rare Orb of Zoom grants its owner permanent 256x zoom superpower</string>
+
+    <string name="coloring_0_info">This Sun-Orange blossom is just as beautiful as it is imagined</string>
+    <string name="coloring_1_info">Nebula-Green shades of this color will add the game some notes of calm</string>
+    <string name="coloring_2_info">This Pink Dwarf color not only looks but also sounds like something amazing</string>
+    <string name="coloring_3_info">Those Galaxy-Violet tones will saturate your zooming experience with new dyes</string>
+    <string name="coloring_4_info">As dark as Black Holes are - you will enjoy the minimalism and simplicity</string>
+    <string name="coloring_5_info">This Comet-White look will reveal you all the dark corners of the fractal</string>
+    <string name="coloring_6_info">This Supernova collapse radiance is so bright that it Inverses the game colors</string>
+    <string name="coloring_7_info">As the Big Bang brought life to the Universe, would this Gradient satiate your mirth</string>
+</resources>

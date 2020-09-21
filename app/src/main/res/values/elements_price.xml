@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="boosters_0_price">5.0B</string>
+    <string name="boosters_1_price">10.0C</string>
+    <string name="boosters_2_price">20.0E</string>
+    <string name="boosters_3_price">30.0G</string>
+    <string name="boosters_4_price">40.0I</string>
+    <string name="boosters_5_price">50.0K</string>
+    <string name="boosters_6_price">60.0M</string>
+    <string name="boosters_7_price">80.0Q</string>
+
+    <string name="coloring_0_price">15.0D</string>
+    <string name="coloring_1_price">15.0D</string>
+    <string name="coloring_2_price">15.0D</string>
+    <string name="coloring_3_price">35.0H</string>
+    <string name="coloring_4_price">55.0L</string>
+    <string name="coloring_5_price">55.0L</string>
+    <string name="coloring_6_price">70.0O</string>
+    <string name="coloring_7_price">90.0S</string>
+</resources>

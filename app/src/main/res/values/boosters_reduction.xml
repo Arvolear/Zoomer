@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="boosters_0_reduction">28.0</string>
+    <string name="boosters_1_reduction">116.0</string>
+    <string name="boosters_2_reduction">209.0</string>
+    <string name="boosters_3_reduction">303.0</string>
+    <string name="boosters_4_reduction">398.0</string>
+    <string name="boosters_5_reduction">495.0</string>
+    <string name="boosters_6_reduction">686.0</string>
+    <string name="boosters_7_reduction">878.0</string>
+</resources>
