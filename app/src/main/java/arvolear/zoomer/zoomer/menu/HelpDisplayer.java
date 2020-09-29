@@ -161,6 +161,7 @@ public class HelpDisplayer extends FrameLayout
                 "<p>What you are about to witness is a true masterpiece of 20'th century math. Named after its founder, Mandelbrot fractal is an elaborate " +
                         "yet simple figure, that is constructed through squaring complex numbers and tracking the ones that converge.</p>" +
                 "<h2>5. Credits</h2>" +
+                "<p>Feel free to rate the <a href=\"https://play.google.com/store/apps/details?id=arvolear.zoomer.zoomer&hl=en\">Fractal Zoomer</a>." + "</p>" +
                 "<p>Huge kudos to <a href=\"http://instagram.com/sokol.art_/\">Maria</a> for making the game possible." + "</p>" +
                 "<p>All the sounds used in the game are taken from <a href=\"http://zapsplat.com\">Zapsplat.com</a>." + "</p>"
                 ));
