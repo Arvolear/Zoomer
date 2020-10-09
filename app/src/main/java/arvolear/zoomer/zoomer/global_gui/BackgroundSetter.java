@@ -137,6 +137,17 @@ abstract public class BackgroundSetter
     {
         if (newBitmap != null)
         {
+            while (desiredWidth == 0)
+            {
+                try
+                {
+                    wait(50);
+                }
+                catch (Exception ex)
+                {
+                }
+            }
+
             final Bitmap backgroundBitmap = Bitmap.createBitmap(newBitmap, widthOffset, 0, desiredWidth, newBitmap.getHeight());
 
             activity.runOnUiThread(new Runnable()

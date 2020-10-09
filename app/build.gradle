@@ -8,8 +8,8 @@ android {
         applicationId "arvolear.zoomer.zoomer"
         minSdkVersion 22
         targetSdkVersion 29
-        versionCode 25
-        versionName "7.21"
+        versionCode 26
+        versionName "7.22"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -27,13 +27,13 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
 
     implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     implementation 'com.google.android.material:material:1.2.1'
 
     implementation 'com.google.android.gms:play-services-ads-lite:19.4.0'
 
-    implementation 'com.android.billingclient:billing:3.0.0'
+    implementation 'com.android.billingclient:billing:3.0.1'
 
     implementation project(path: ':downloader_library')
     implementation project(path: ':zip_file')
