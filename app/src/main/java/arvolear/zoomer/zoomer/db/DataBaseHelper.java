@@ -16,7 +16,7 @@ public class DataBaseHelper extends SQLiteOpenHelper
     private static SQLiteDatabase DB = null;
 
     private static final String DB_NAME = "zoomer";
-    private static final int DB_VERSION = 2;
+    private static final int DB_VERSION = 3;
 
     private static final String GAME_TABLE_NAME = "game";
     private static final String BOOSTERS_TABLE_NAME = "boosters";
@@ -72,6 +72,16 @@ public class DataBaseHelper extends SQLiteOpenHelper
         String args[] = {to};
 
         DB.update(GAME_TABLE_NAME, values, selection, args);
+    }
+
+    public boolean isReviewShown()
+    {
+        return Boolean.parseBoolean(queryString("review_shown"));
+    }
+
+    public void setReviewShown()
+    {
+        setString("review_shown", "true");
     }
 
     public boolean isFirstTime()
@@ -242,7 +252,8 @@ public class DataBaseHelper extends SQLiteOpenHelper
                 "coins",
                 "max_zoom",
                 "coins_adds_amount",
-                "current_day"
+                "current_day",
+                "review_shown"
         };
 
         String values[] = {
@@ -259,7 +270,8 @@ public class DataBaseHelper extends SQLiteOpenHelper
                 "0",
                 "0.0",
                 "0",
-                "0"
+                "0",
+                "false"
         };
 
         for (int i = 0; i < values.length; i++)
@@ -328,10 +340,19 @@ public class DataBaseHelper extends SQLiteOpenHelper
     {
         Log.d("Zoomer", "Update data base from " + oldVersion + " to " + newVersion);
 
-        if (oldVersion < newVersion && newVersion == 2)
+        if (oldVersion <= 1)
         {
             ContentValues contentValues = new ContentValues();
             contentValues.put("title", "first_zoom_popup");
+            contentValues.put("value", "false");
+
+            db.insert(GAME_TABLE_NAME, null, contentValues);
+        }
+
+        if (oldVersion <= 2)
+        {
+            ContentValues contentValues = new ContentValues();
+            contentValues.put("title", "review_shown");
             contentValues.put("value", "false");
 
             db.insert(GAME_TABLE_NAME, null, contentValues);

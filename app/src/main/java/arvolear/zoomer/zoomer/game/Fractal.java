@@ -224,6 +224,11 @@ public class Fractal extends View
         blurredFractal.clear();
         currentBitmap = fractalTree.get(currentIndex);
 
+        if (currentBitmap == null)
+        {
+            return;
+        }
+
         Thread blurThread = new Thread(new Runnable()
         {
             @Override

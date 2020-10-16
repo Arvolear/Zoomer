@@ -21,6 +21,11 @@ import com.google.android.gms.ads.rewarded.RewardItem;
 import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.ads.rewarded.RewardedAdCallback;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
+import com.google.android.play.core.review.ReviewInfo;
+import com.google.android.play.core.review.ReviewManager;
+import com.google.android.play.core.review.ReviewManagerFactory;
+import com.google.android.play.core.tasks.OnCompleteListener;
+import com.google.android.play.core.tasks.Task;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -51,6 +56,8 @@ public class GameController extends ScaleGestureDetector.SimpleOnScaleGestureLis
     private boolean turnSoundOn;
     private int curMusicIndex;
 
+    private ReviewManager reviewManager;
+
     private InterstitialAd afterEpochAdd;
     private RewardedAd coinsX2Add;
 
@@ -72,6 +79,7 @@ public class GameController extends ScaleGestureDetector.SimpleOnScaleGestureLis
     private Black blackScreen;
     private LoadingWheel loadingWheel;
 
+    private boolean reviewShown = false;
     private boolean buyShown = false;
     private boolean popUpShown = false;
     private boolean gameMenuShown = false;
@@ -128,6 +136,7 @@ public class GameController extends ScaleGestureDetector.SimpleOnScaleGestureLis
 
         checkNewDay();
         initAdds();
+        reviewManager = ReviewManagerFactory.create(activity);
 
         fractal = new Fractal(activity, this, "assets/textures/game/mandelbrot", (int) maxZoom, ASSETS_NUMBER);
         boosterShower = new BoosterShower(activity, configurator, "assets/textures/market/boosters/elements");
@@ -161,8 +170,8 @@ public class GameController extends ScaleGestureDetector.SimpleOnScaleGestureLis
     private void initAdds()
     {
         afterEpochAdd = new InterstitialAd(activity);
-        // test afterEpochAdd.setAdUnitId("ca-app-pub-3940256099942544/1033173712");
 
+        // test afterEpochAdd.setAdUnitId("ca-app-pub-3940256099942544/1033173712");
         afterEpochAdd.setAdUnitId("ca-app-pub-4757202430610617/4753853521");
 
         createInterAdd();
@@ -250,7 +259,7 @@ public class GameController extends ScaleGestureDetector.SimpleOnScaleGestureLis
             showTutorialPopup();
         }
 
-        if (maxZoom >= 1050.0 && popUpItem.isEasterPopUp())
+        if (maxZoom >= 1025.0 && popUpItem.isEasterPopUp())
         {
             showTutorialPopup();
         }
@@ -281,6 +290,48 @@ public class GameController extends ScaleGestureDetector.SimpleOnScaleGestureLis
             gameMenu.setEpochAttention();
 
             epochMenu.setAttention();
+        }
+    }
+
+    private void displayReview()
+    {
+        if (!configurator.getDataBaseHelper().isReviewShown() && !reviewShown && maxZoom >= 300)
+        {
+            reviewShown = true;
+
+            Thread reviewThread = new Thread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    Task<ReviewInfo> request = reviewManager.requestReviewFlow();
+
+                    request.addOnCompleteListener(new OnCompleteListener<ReviewInfo>()
+                    {
+                        @Override
+                        public void onComplete(Task<ReviewInfo> task)
+                        {
+                            if (task.isSuccessful())
+                            {
+                                ReviewInfo reviewInfo = task.getResult();
+
+                                Task<Void> flow = reviewManager.launchReviewFlow(activity, reviewInfo);
+
+                                flow.addOnCompleteListener(new OnCompleteListener<Void>()
+                                {
+                                    @Override
+                                    public void onComplete(Task<Void> task)
+                                    {
+                                        configurator.getDataBaseHelper().setReviewShown();
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
+            });
+
+            reviewThread.start();
         }
     }
 
@@ -344,6 +395,8 @@ public class GameController extends ScaleGestureDetector.SimpleOnScaleGestureLis
 
                 depthSensitivity = getDepthSensitivity(maxZoom);
                 displayPopUpItem();
+
+                displayReview();
             }
         }
 
@@ -403,7 +456,7 @@ public class GameController extends ScaleGestureDetector.SimpleOnScaleGestureLis
         }
 
         int toAdd = Integer.parseInt(toAddStr);
-        toAdd = Math.min(20, toAdd);
+        toAdd = Math.min(15, toAdd);
 
         coinSpawner.spawn(toAdd, 100, soundsPlayer);
         coinCollector.addCoins(coins);
@@ -788,6 +841,7 @@ public class GameController extends ScaleGestureDetector.SimpleOnScaleGestureLis
 //                zoomDisplayer.setZoomText(maxZoom);
 //                zoomBar.increaseProgress(0.1234);
 //                displayPopUpItem();
+//                displayReview();
 //            }
 
             return scaleDetector.onTouchEvent(event);

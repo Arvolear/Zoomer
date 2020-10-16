@@ -296,6 +296,11 @@ public class BuyElement extends FrameLayout
 
     public void show()
     {
+        if (buy == null)
+        {
+            return;
+        }
+
         buy.startAnimation(AnimationUtils.loadAnimation(activity, R.anim.button_breath));
     }
 }
