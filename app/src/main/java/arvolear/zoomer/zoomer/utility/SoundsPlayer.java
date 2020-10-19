@@ -129,12 +129,13 @@ public class SoundsPlayer
                     try
                     {
                         Thread.sleep(toSleep);
+
+                        mediaPlayer.setVolume(Math.min(leftVolume, curLeft), Math.min(rightVolume, curRight));
                     }
                     catch (Exception ex)
                     {
+                        ex.printStackTrace();
                     }
-
-                    mediaPlayer.setVolume(Math.min(leftVolume, curLeft), Math.min(rightVolume, curRight));
 
                     curLeft += incLeft;
                     curRight += incRight;
