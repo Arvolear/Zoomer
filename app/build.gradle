@@ -8,8 +8,8 @@ android {
         applicationId "arvolear.zoomer.zoomer"
         minSdkVersion 22
         targetSdkVersion 29
-        versionCode 31
-        versionName "7.33"
+        versionCode 32
+        versionName "7.34"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

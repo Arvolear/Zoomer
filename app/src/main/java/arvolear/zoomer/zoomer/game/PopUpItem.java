@@ -185,7 +185,10 @@ public class PopUpItem extends FrameLayout
 
                         if (showTutorial)
                         {
-                            MenuController.getMusicPlayer().setVolume(0.25f, 0.25f);
+                            if (MenuController.getMusicPlayer() != null)
+                            {
+                                MenuController.getMusicPlayer().setVolume(0.25f, 0.25f);
+                            }
                         }
 
                         if (showTutorial && firstPopUp)
@@ -321,7 +324,11 @@ public class PopUpItem extends FrameLayout
 
     public void hide(final SoundsPlayer soundsPlayer)
     {
-        MenuController.getMusicPlayer().setVolume(0.5f, 0.5f);
+        if (MenuController.getMusicPlayer() != null)
+        {
+            MenuController.getMusicPlayer().setVolume(0.5f, 0.5f);
+        }
+
         soundsPlayer.play("assets/sounds/game/hide_pop_up.mp3", false);
 
         if (firstPopUp)

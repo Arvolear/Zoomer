@@ -282,7 +282,11 @@ public class MenuController implements View.OnClickListener
 
     void destroy()
     {
-        musicPlayer.stop();
+        if (musicPlayer != null)
+        {
+            musicPlayer.stop();
+        }
+
         musicPlayer = null;
     }
 }
