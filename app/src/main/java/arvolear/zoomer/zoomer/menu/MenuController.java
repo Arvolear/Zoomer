@@ -194,6 +194,7 @@ public class MenuController implements View.OnClickListener
         configurator.getDataBaseHelper().setSound(turnSoundOn);
 
         musicPlayer.setTurnSoundOn(turnSoundOn);
+        soundIcon.setTurnSoundOn(turnSoundOn);
         soundsPlayer.setTurnSoundOn(turnSoundOn);
     }
 
@@ -203,8 +204,6 @@ public class MenuController implements View.OnClickListener
         if (v.getId() == soundIcon.getSoundId())
         {
             turnSoundOn = !turnSoundOn;
-
-            soundIcon.setTurnSoundOn(turnSoundOn);
 
             updateSound();
 
