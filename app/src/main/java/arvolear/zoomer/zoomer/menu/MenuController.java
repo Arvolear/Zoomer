@@ -18,7 +18,7 @@ public class MenuController implements View.OnClickListener
 
     private static SoundsPlayer musicPlayer;
 
-    public static final int HOW_MANY_ADDS_PER_DAY = 2;
+    public static final int HOW_MANY_ADDS_PER_DAY = 5;
 
     private static boolean restartMusic = false;
     private boolean pauseMusic = true;

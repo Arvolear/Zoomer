@@ -16,11 +16,13 @@ import com.android.billingclient.api.BillingFlowParams;
 import com.android.billingclient.api.BillingResult;
 import com.android.billingclient.api.ConsumeParams;
 import com.android.billingclient.api.ConsumeResponseListener;
+import com.android.billingclient.api.ProductDetails;
+import com.android.billingclient.api.ProductDetailsResponseListener;
+import com.android.billingclient.api.PurchasesResponseListener;
 import com.android.billingclient.api.Purchase;
 import com.android.billingclient.api.PurchasesUpdatedListener;
-import com.android.billingclient.api.SkuDetails;
-import com.android.billingclient.api.SkuDetailsParams;
-import com.android.billingclient.api.SkuDetailsResponseListener;
+import com.android.billingclient.api.QueryProductDetailsParams;
+import com.android.billingclient.api.QueryPurchasesParams;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -30,7 +32,7 @@ import arvolear.zoomer.zoomer.R;
 import arvolear.zoomer.zoomer.global_gui.CoinCollector;
 import arvolear.zoomer.zoomer.utility.SoundsPlayer;
 
-public class Buyer implements PurchasesUpdatedListener, ConsumeResponseListener
+public class Buyer implements PurchasesUpdatedListener, ConsumeResponseListener, PurchasesResponseListener
 {
     private AppCompatActivity activity;
     private View.OnClickListener controller;
@@ -39,14 +41,14 @@ public class Buyer implements PurchasesUpdatedListener, ConsumeResponseListener
     private BuyDisplayer buyDisplayer;
     private CoinCollector coinCollector;
 
-    public static final String SKU_10X = "coins_10x";
-    public static final String SKU_100X = "coins_100x";
+    public QueryProductDetailsParams.Product product10x;
+    public QueryProductDetailsParams.Product product100x;
 
     private BillingClient billingClient;
     private long lastPurchaseClickTime = 0;
 
-    private List<String> skuList;
-    private List<SkuDetails> skuDetailsList;
+    private List<QueryProductDetailsParams.Product> productList;
+    private List<ProductDetails> productDetailsList;
 
     public Buyer(AppCompatActivity activity, View.OnClickListener controller, SoundsPlayer soundsPlayer, BuyDisplayer buyDisplayer, CoinCollector coinCollector)
     {
@@ -57,11 +59,14 @@ public class Buyer implements PurchasesUpdatedListener, ConsumeResponseListener
         this.buyDisplayer = buyDisplayer;
         this.coinCollector = coinCollector;
 
-        skuList = new ArrayList<>();
-        skuDetailsList = new ArrayList<>();
+        productList = new ArrayList<>();
+        productDetailsList = new ArrayList<>();
 
-        skuList.add(SKU_10X);
-        skuList.add(SKU_100X);
+        product10x = QueryProductDetailsParams.Product.newBuilder().setProductType(BillingClient.ProductType.INAPP).setProductId("coins_10x").build();
+        product100x = QueryProductDetailsParams.Product.newBuilder().setProductType(BillingClient.ProductType.INAPP).setProductId("coins_100x").build();
+
+        productList.add(product10x);
+        productList.add(product100x);
 
         setupBillingClient();
     }
@@ -98,22 +103,9 @@ public class Buyer implements PurchasesUpdatedListener, ConsumeResponseListener
     {
         if (billingClient.isReady())
         {
-            Purchase.PurchasesResult result = billingClient.queryPurchases(BillingClient.SkuType.INAPP);
-            List<Purchase> purchases = result.getPurchasesList();
+            QueryPurchasesParams params = QueryPurchasesParams.newBuilder().setProductType(BillingClient.ProductType.INAPP).build();
 
-            if (purchases == null)
-            {
-                return;
-            }
-
-            for (Purchase item : purchases)
-            {
-                ConsumeParams consumeParams = ConsumeParams.newBuilder()
-                        .setPurchaseToken(item.getPurchaseToken())
-                        .build();
-
-                billingClient.consumeAsync(consumeParams, Buyer.this);
-            }
+            billingClient.queryPurchasesAsync(params, this);
         }
     }
 
@@ -121,30 +113,29 @@ public class Buyer implements PurchasesUpdatedListener, ConsumeResponseListener
     {
         if (billingClient.isReady())
         {
-            SkuDetailsParams params = SkuDetailsParams
+
+            QueryProductDetailsParams params = QueryProductDetailsParams
                     .newBuilder()
-                    .setSkusList(skuList)
-                    .setType(BillingClient.SkuType.INAPP)
+                    .setProductList(productList)
                     .build();
 
-            billingClient.querySkuDetailsAsync(params, new SkuDetailsResponseListener()
+            billingClient.queryProductDetailsAsync(params, new ProductDetailsResponseListener()
             {
                 @Override
-                public void onSkuDetailsResponse(@NonNull BillingResult billingResult, List<SkuDetails> skuDetailsList)
-                {
+                public void onProductDetailsResponse(@NonNull BillingResult billingResult, @NonNull List<ProductDetails> list) {
                     if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK)
                     {
-                        Buyer.this.skuDetailsList = skuDetailsList;
+                        Buyer.this.productDetailsList = list;
 
-                        for (SkuDetails skuDetails : skuDetailsList)
+                        for (ProductDetails productDetails : list)
                         {
-                            BuyElement element = new BuyElement(activity, controller, "assets/textures/all/coin", skuDetails.getSku());
+                            BuyElement element = new BuyElement(activity, controller, "assets/textures/all/coin", productDetails.getProductId());
 
-                            String title = skuDetails.getTitle();
+                            String title = productDetails.getTitle();
                             title = title.substring(0, title.indexOf(" ", title.indexOf(" ") + 1));
 
                             element.setTitle(title);
-                            element.setPrice(skuDetails.getPrice());
+                            element.setPrice(productDetails.getOneTimePurchaseOfferDetails().getFormattedPrice());
 
                             buyDisplayer.addBuyElement(element);
                         }
@@ -158,45 +149,10 @@ public class Buyer implements PurchasesUpdatedListener, ConsumeResponseListener
 
     private void checkPending()
     {
-        Purchase.PurchasesResult result = billingClient.queryPurchases(BillingClient.SkuType.INAPP);
-        List<Purchase> purchases = result.getPurchasesList();
-
-        if (purchases == null)
-        {
-            return;
-        }
-
-        boolean hasPending = false;
-
-        for (Purchase item : purchases)
-        {
-            if (item.getPurchaseState() == Purchase.PurchaseState.PENDING)
-            {
-                hasPending = true;
-                break;
-            }
-        }
-
-        if (hasPending)
-        {
-            ArrayList<BuyElement> buyElements = buyDisplayer.getElements();
-
-            for (BuyElement element : buyElements)
-            {
-                element.disable();
-
-                for (Purchase item : purchases)
-                {
-                    if (element.getSku().equals(item.getSku()) && item.getPurchaseState() == Purchase.PurchaseState.PENDING)
-                    {
-                        element.setInProgress();
-                    }
-                }
-            }
-        }
+        billingClient.queryPurchasesAsync(BillingClient.ProductType.INAPP, this);
     }
 
-    public void purchase(String sku)
+    public void purchase(String productId)
     {
         if (SystemClock.elapsedRealtime() - lastPurchaseClickTime < 2000)
         {
@@ -209,7 +165,7 @@ public class Buyer implements PurchasesUpdatedListener, ConsumeResponseListener
 
         for (BuyElement element : buyElements)
         {
-            if (element.getSku().equals(sku))
+            if (element.getProductId().equals(productId))
             {
                 element.setInProgress();
             }
@@ -219,12 +175,18 @@ public class Buyer implements PurchasesUpdatedListener, ConsumeResponseListener
             }
         }
 
-        for (SkuDetails skuDetails : skuDetailsList)
+        for (ProductDetails productDetails : productDetailsList)
         {
-            if (sku.equals(skuDetails.getSku()))
+            if (productId.equals(productDetails.getProductId()))
             {
+                BillingFlowParams.ProductDetailsParams params =
+                        BillingFlowParams.ProductDetailsParams.newBuilder().setProductDetails(productDetails).build();
+
+                List<BillingFlowParams.ProductDetailsParams> list = new ArrayList<>();
+                list.add(params);
+
                 BillingFlowParams flowParams = BillingFlowParams.newBuilder()
-                        .setSkuDetails(skuDetails)
+                        .setProductDetailsParamsList(list)
                         .build();
 
                 billingClient.launchBillingFlow(activity, flowParams);
@@ -300,11 +262,11 @@ public class Buyer implements PurchasesUpdatedListener, ConsumeResponseListener
 
         BigInteger coins = new BigInteger(coinCollector.getActualCoins());
 
-        if (purchase.getSku().equals(SKU_10X))
+        if (purchase.getProducts().get(0).equals(product10x.zza()))
         {
             coinCollector.setActualCoins(coins.multiply(BigInteger.TEN).toString(), jump);
         }
-        else if (purchase.getSku().equals(SKU_100X))
+        else if (purchase.getProducts().get(0).equals(product100x.zza()))
         {
             coinCollector.setActualCoins(coins.multiply(BigInteger.TEN).multiply(BigInteger.TEN).toString(), jump);
         }
@@ -316,6 +278,44 @@ public class Buyer implements PurchasesUpdatedListener, ConsumeResponseListener
         if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK)
         {
             // better to reward user here
+        }
+    }
+
+    @Override
+    public void onQueryPurchasesResponse(@NonNull BillingResult billingResult, @NonNull List<Purchase> purchases) {
+        boolean hasPending = false;
+
+        for (Purchase item : purchases)
+        {
+            if (item.getPurchaseState() == Purchase.PurchaseState.PENDING)
+            {
+                hasPending = true;
+                break;
+            } else if (item.getPurchaseState() == Purchase.PurchaseState.PURCHASED) {
+                ConsumeParams consumeParams = ConsumeParams.newBuilder()
+                        .setPurchaseToken(item.getPurchaseToken())
+                        .build();
+
+                billingClient.consumeAsync(consumeParams, Buyer.this);
+            }
+        }
+
+        if (hasPending)
+        {
+            ArrayList<BuyElement> buyElements = buyDisplayer.getElements();
+
+            for (BuyElement element : buyElements)
+            {
+                element.disable();
+
+                for (Purchase item : purchases)
+                {
+                    if (element.getProductId().equals(item.getProducts().get(0)) && item.getPurchaseState() == Purchase.PurchaseState.PENDING)
+                    {
+                        element.setInProgress();
+                    }
+                }
+            }
         }
     }
 }

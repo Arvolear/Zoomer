@@ -39,7 +39,7 @@ public class BuyElement extends FrameLayout
 
     private String path;
 
-    private String sku;
+    private String productId;
     private boolean inProgress = false;
 
     private LinearLayout all;
@@ -52,7 +52,7 @@ public class BuyElement extends FrameLayout
 
     private ProgressBar progressBar;
 
-    public BuyElement(AppCompatActivity activity, OnClickListener controller, String path, String sku)
+    public BuyElement(AppCompatActivity activity, OnClickListener controller, String path, String productId)
     {
         super(activity);
 
@@ -62,7 +62,7 @@ public class BuyElement extends FrameLayout
 
         menuLayout = activity.findViewById(R.id.menuLayout);
 
-        this.sku = sku;
+        this.productId = productId;
 
         tree = new TreeMap<>();
         assetsLoader = new AssetsLoader(activity, tree);
@@ -188,9 +188,9 @@ public class BuyElement extends FrameLayout
         return buy.getId();
     }
 
-    public String getSku()
+    public String getProductId()
     {
-        return sku;
+        return productId;
     }
 
     public void setTitle(final String title)

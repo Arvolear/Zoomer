@@ -63,7 +63,7 @@ public class ExpansionController implements View.OnClickListener, IDownloaderCli
 
     public boolean checkPermission()
     {
-        if (ContextCompat.checkSelfPermission(activity, PERMISSION) == PackageManager.PERMISSION_DENIED)
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.S && ContextCompat.checkSelfPermission(activity, PERMISSION) == PackageManager.PERMISSION_DENIED)
         {
             File obb = new File(Helpers.getExpansionAPKFileName(activity, EXP_IS_MAIN, EXP_VERSION));
 
@@ -120,7 +120,15 @@ public class ExpansionController implements View.OnClickListener, IDownloaderCli
             Intent notifierIntent = new Intent(activity, MainActivity.class);
             notifierIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-            PendingIntent pendingIntent = PendingIntent.getActivity(activity, 0, notifierIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent pendingIntent = null;
+
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                PendingIntent.getActivity(activity, 0, notifierIntent, PendingIntent.FLAG_MUTABLE);
+            }
+            else
+            {
+                PendingIntent.getActivity(activity, 0, notifierIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            }
 
             try
             {

@@ -14,9 +14,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.FullScreenContentCallback;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.OnUserEarnedRewardListener;
 import com.google.android.gms.ads.rewarded.RewardItem;
 import com.google.android.gms.ads.rewarded.RewardedAd;
-import com.google.android.gms.ads.rewarded.RewardedAdCallback;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 import com.google.android.material.tabs.TabLayout;
 
@@ -127,30 +129,24 @@ public class MarketController implements View.OnClickListener
 
     private void createRewardedAdd()
     {
-        if (configurator.getDataBaseHelper().getCoinsAddsAmount() < MenuController.HOW_MANY_ADDS_PER_DAY)
-        {
-            // test coinsX2Add = new RewardedAd(activity, "ca-app-pub-3940256099942544/5224354917");
-            coinsX2Add = new RewardedAd(activity, "ca-app-pub-4757202430610617/9353639164");
+        if (configurator.getDataBaseHelper().getCoinsAddsAmount() < MenuController.HOW_MANY_ADDS_PER_DAY) {
+            AdRequest adRequest = new AdRequest.Builder().build();
 
-            RewardedAdLoadCallback coinsX2LoadCallback = new RewardedAdLoadCallback()
-            {
-                @Override
-                public void onRewardedAdLoaded()
-                {
-                    buyDisplayer.setConnectedAdd();
-                }
+            // test "ca-app-pub-3940256099942544/5224354917"
+            RewardedAd.load(activity, "ca-app-pub-4757202430610617/9353639164",
+                    adRequest, new RewardedAdLoadCallback() {
+                        @Override
+                        public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                            buyDisplayer.setDisconnectedAdd();
+                        }
 
-                @Override
-                public void onRewardedAdFailedToLoad(int errorCode)
-                {
-                    buyDisplayer.setDisconnectedAdd();
-                }
-            };
-
-            coinsX2Add.loadAd(new AdRequest.Builder().build(), coinsX2LoadCallback);
-        }
-        else
-        {
+                        @Override
+                        public void onAdLoaded(@NonNull RewardedAd ad) {
+                            coinsX2Add = ad;
+                            buyDisplayer.setConnectedAdd();
+                        }
+                    });
+        } else {
             buyDisplayer.setDisconnectedAdd();
         }
     }
@@ -253,30 +249,28 @@ public class MarketController implements View.OnClickListener
 
     private void showRewardVideo()
     {
-        if (coinsX2Add != null && coinsX2Add.isLoaded())
-        {
-            RewardedAdCallback coin2XRewardCallBack = new RewardedAdCallback()
-            {
+        if (coinsX2Add != null) {
+            coinsX2Add.setFullScreenContentCallback(new FullScreenContentCallback() {
                 @Override
-                public void onRewardedAdClosed()
-                {
+                public void onAdDismissedFullScreenContent() {
+                    super.onAdDismissedFullScreenContent();
+
                     createRewardedAdd();
                     buyDisplayer.enableButtons();
                 }
+            });
 
+            coinsX2Add.show(activity, new OnUserEarnedRewardListener() {
                 @Override
-                public void onUserEarnedReward(@NonNull RewardItem reward)
-                {
+                public void onUserEarnedReward(@NonNull RewardItem rewardItem) {
                     Animation jump = AnimationUtils.loadAnimation(activity, R.anim.coin_collector_hidden_add);
 
                     BigInteger coins = new BigInteger(coinCollector.getActualCoins());
-                    coinCollector.setActualCoins(coins.multiply(new BigInteger(String.valueOf(reward.getAmount()))).toString(), jump);
+                    coinCollector.setActualCoins(coins.multiply(new BigInteger(String.valueOf(rewardItem.getAmount()))).toString(), jump);
 
                     configurator.getDataBaseHelper().setCoinsAddsAmount(configurator.getDataBaseHelper().getCoinsAddsAmount() + 1);
                 }
-            };
-
-            coinsX2Add.show(activity, coin2XRewardCallBack);
+            });
         }
     }
 
@@ -397,7 +391,7 @@ public class MarketController implements View.OnClickListener
                         else
                         {
                             soundsPlayer.play("assets/sounds/all/button_press.mp3", false);
-                            buyer.purchase(element.getSku());
+                            buyer.purchase(element.getProductId());
                         }
 
                         break;
