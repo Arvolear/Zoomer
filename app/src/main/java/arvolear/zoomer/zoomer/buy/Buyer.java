@@ -16,12 +16,14 @@ import com.android.billingclient.api.BillingFlowParams;
 import com.android.billingclient.api.BillingResult;
 import com.android.billingclient.api.ConsumeParams;
 import com.android.billingclient.api.ConsumeResponseListener;
+import com.android.billingclient.api.PendingPurchasesParams;
 import com.android.billingclient.api.ProductDetails;
 import com.android.billingclient.api.ProductDetailsResponseListener;
 import com.android.billingclient.api.PurchasesResponseListener;
 import com.android.billingclient.api.Purchase;
 import com.android.billingclient.api.PurchasesUpdatedListener;
 import com.android.billingclient.api.QueryProductDetailsParams;
+import com.android.billingclient.api.QueryProductDetailsResult;
 import com.android.billingclient.api.QueryPurchasesParams;
 
 import java.math.BigInteger;
@@ -73,9 +75,13 @@ public class Buyer implements PurchasesUpdatedListener, ConsumeResponseListener,
 
     private void setupBillingClient()
     {
+        PendingPurchasesParams pendingPurchasesParams = PendingPurchasesParams.newBuilder()
+                .enableOneTimeProducts()
+                .build();
+
         billingClient = BillingClient
                 .newBuilder(activity)
-                .enablePendingPurchases()
+                .enablePendingPurchases(pendingPurchasesParams)
                 .setListener(this)
                 .build();
 
@@ -122,12 +128,12 @@ public class Buyer implements PurchasesUpdatedListener, ConsumeResponseListener,
             billingClient.queryProductDetailsAsync(params, new ProductDetailsResponseListener()
             {
                 @Override
-                public void onProductDetailsResponse(@NonNull BillingResult billingResult, @NonNull List<ProductDetails> list) {
+                public void onProductDetailsResponse(@NonNull BillingResult billingResult, @NonNull QueryProductDetailsResult queryProductDetailsResult) {
                     if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK)
                     {
-                        Buyer.this.productDetailsList = list;
+                        Buyer.this.productDetailsList = queryProductDetailsResult.getProductDetailsList();
 
-                        for (ProductDetails productDetails : list)
+                        for (ProductDetails productDetails : Buyer.this.productDetailsList)
                         {
                             BuyElement element = new BuyElement(activity, controller, "assets/textures/all/coin", productDetails.getProductId());
 
@@ -149,7 +155,9 @@ public class Buyer implements PurchasesUpdatedListener, ConsumeResponseListener,
 
     private void checkPending()
     {
-        billingClient.queryPurchasesAsync(BillingClient.ProductType.INAPP, this);
+        QueryPurchasesParams params = QueryPurchasesParams.newBuilder().setProductType(BillingClient.ProductType.INAPP).build();
+
+        billingClient.queryPurchasesAsync(params, this);
     }
 
     public void purchase(String productId)
